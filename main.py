@@ -1,7 +1,7 @@
 import argparse
 import re
 
-def parse_profiles(text : str) -> List
+def parse_profiles(text : str) -> List[Dict[str, str]]:
   """
   Parses the file text into separate profiles.
   Each profile starts with a number like '1)', '2)', etc.
@@ -17,23 +17,23 @@ def parse_profiles(text : str) -> List
       lines = lines[1:]
     profile = {}
     for line in lines:
-      match = re.match(r'^([^:]+):\s*(.*)$', line)
+      match = re.match(r'^([^:]+)(:)\s*(.*)$', line)
       if match:
         key = match.group(1).strip()
-        value = match.group(2).strip()
+        cemicolon = match.group(2).strip()
+        value = match.group(3).strip()
         profile[key] = value
     if profile:
       profiles.append(profile)
   return profiles
 
 
-def is_valid_gender_male(gender : str):
+def is_valid_gender_male(gender : str) -> bool:
   """Checks whether the gender is male."""
-  male_pattern = r'^(М|м|Мужской|мужской)$'
-  return re.fullmatch(male_pattern, gender.strip()) is not None
+  return re.fullmatch(r'^(М|м|Мужской|мужской)$', gender.strip()) is not None
 
 
-def profile_to_text(profile, index):
+def profile_to_text(profile : Dict[str, str], index : int) -> str:
   """Builds the profile text for saving to a file."""
   lines = [f"{index})"]
   for key in ['Фамилия', 'Имя', 'Пол', 'Дата рождения', 'Номер телефона или email', 'Город']:
@@ -45,8 +45,8 @@ def profile_to_text(profile, index):
 def main():
   parser = argparse.ArgumentParser(description='Counting male profiles')
   parser.add_argument('filename', type=str, help='path to the file with profiles')
-  parser.add_argument('-o', '--output', type=str, default='males.txt',
-            help='file to save male profiles (default: males.txt)')
+  parser.add_argument('-o', '--output', type=str, default='output.txt',
+            help='file to save male profiles (default: output.txt)')
   args = parser.parse_args()
 
   with open(args.filename, 'r', encoding='utf-8') as file:
