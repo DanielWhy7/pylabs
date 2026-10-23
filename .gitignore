@@ -1,0 +1,4 @@
+/__pycache__
+/venv/bin/activate
+/scraped_book_covers
+covers_annotation.csv

@@ -1,41 +1,70 @@
-Laboratory Work No. 1: Regular Expressions (Program Explanation)
+Multi-Genre Book Cover Scraper
 
 
-📌 Project Architecture & Objective
+An enterprise-grade, highly resilient multi-module web scraping application designed to systematically crawl book categories and extract thumbnail cover illustrations from the Books to Scrape sandbox network.
+The architecture strictly adheres to programmatic decoupling rules, containing isolated components for network operations, cross-platform file sanitization, precise dataset indexing, and memory-safe stream validation.
 
-The core purpose of this program is to automate the filtration of structured text data sets using regular expression constraints. Operating under Variant 1, the architecture processes an input roster of individuals to isolate, count, and export all profile entries containing verified male gender flags.
-The system relies on a three-phase pipeline:
-1. Parsing Phase: Ingests raw text, identifies individual profile partitions, and translates text blocks into memory-efficient data structures.
-2. Filtering Phase: Evaluates the target parameters utilizing regex token matching.
-3. Serialization Phase: Re-indexes the compliant targets sequentially and yields a uniform plaintext delivery export.
+🌟 Key Features
 
-🛠️ Internal Mechanics & Execution Logic
+• Resilient Element Extraction: Avoids brittle DOM tree structures by using deep pattern-matching link filtration to locate book categories.
+• Smart Pagination Traversal: Dynamically checks and resolves next link bindings until target collection criteria are met.
+• Global Collision Protection: Enforces strict execution offset counters to generate sequential file titles across all subdirectories, protecting data assets against namespace overrides.
+• Dual-Path Dataset Generation: Automatically logs matching pairs of absolute storage addresses and portable environment-relative paths.
+• High-Performance Stream Iterator: Implements a custom low-overhead iterator to sequentially scan data indices line-by-line without causing memory heap consumption.
+
+📁 Repository Structure
+
+text
+├── main.py          # Orchestrates execution routines and manages command-line parsing interface (CLI)
+├── scraper.py       # Core scraping mechanics, handling HTTP connections and binary file I/O operations
+├── iterator.py      # Custom sequence class validating structural integrity of output paths
+└── requirements.txt # External package installation dependencies listing manifest
+Use code with caution.
+
+🚀 Getting Started
 
 
-1. Data Demarcation and Extraction
+Prerequisites
 
-The database structure splits unique individuals via dynamic profile headers (1), 2), etc.). The program isolates profiles by applying a text split configuration based on an assertive forward-looking pattern:
-\(\text{Regex\ Pattern\ Used:\ }\texttt{\backslash \ n(?=\backslash \ d+\backslash \ )}\)
-• \n: Targets standard system line breaks.
-• (?=\d+\)): A positive lookahead constraint. It locates positions immediately followed by one or more digits and a closing parenthesis without consuming those characters during the boundary split.
-Once isolated, each component string line is checked using standard key-value delimiter patterns (^([^:]+)(:)\s*(.*)$) to build mapping dictionaries.
+This application requires Python 3.10 or higher. Ensure the package installer manager tool pip is available on your local system path.
 
-2. Targeted Parameter Verification
+Installation
 
-To isolate targeted profile types, the application evaluates the data mapped under the key Пол (Gender). The assessment applies a strict exact-match configuration:
-\(\text{Regex\ Pattern\ Used:\ }\texttt{\textasciicircum (М|}{}\texttt{м|}{}\texttt{Мужской|}{}\texttt{мужской)$}\)
-• ^ and $: Anchors demanding that the input string strictly starts and stops within the pattern limits, eliminating substring false positives.
-• (М|м|Мужской|мужской): An explicit alternation group capturing all accepted variations of the targeted class flag.
+1. Clone the project repository:bash
+git clone https://github.com
+cd multi-genre-book-cover-scraper
+Use code with caution.
+2. Install necessary dependencies:bash
+pip install -r requirements.txt
+Use code with caution.
 
-3. File I/O and Automation Arguments
+🛠️ Usage Documentation
 
-The program implements the Python standard argparse component to handle terminal-level variable inputs dynamically.
-• Positional Argument: Accept a variable path target specifying the location of the source profile dataset (filename).
-• Optional Flag (-o / --output): Provides user discretion over the export destination string, defaulting implicitly to output.txt if left undefined.
+Execute all pipeline processes through the terminal gateway using input flags.
 
-📊 Processing Metrics & Findings
+1. Quick Verification Run
 
-When executed against the provided base profile index file, the utility tracks and resolves the dataset down to the following functional counts:
-• Total Checked Roster Size: 100 individuals.
-• Extracted Match Count: 49 Male Profiles correctly qualified through the regex filter system.
-• Output Consistency: The filtered data output completely purges out non-matching profile metrics while strictly maintaining sequentially normalized numbering sequence indexes (ranging from 1) up to 49)) inside the generated text file.
+Extract 1 book cover illustration from every single available storefront genre catalog:
+bash
+python main.py --count 1
+Use code with caution.
+
+2. High-Volume Production Batch Run
+
+Download exactly 15 images per category, directing all downloads into a dedicated volume folder, and log index properties inside a separate localized dataset metadata document sheet:
+bash
+python main.py --count 15 --output_dir "production_vault" --csv_path "vault_manifest.csv"
+Use code with caution.
+
+⚙️ Arguments Specification Guide
+
+
+CLI Argument Flag	Element Type	Default Setting Value	Functional Purpose Operational Intent
+--count	int	None (Required)	Sets the exact image collection extraction quota required per category genre.
+--output_dir	str	"scraped_book_covers"	Defines the master workspace directory name where individual subfolders are built.
+--csv_path	str	"covers_annotation.csv"	Sets the destination path where the row-by-row path records tracking index sheet will write.
+
+
+🛡️ License Configuration Profile
+
+This project distribution framework application is globally distributed under the regulatory criteria of the GNU GPLv3 Free Software License Agreement. Review your matching rights regarding open modification, sharing, and commercial compliance constraints inside the standalone LICENSE code text layout documentation profile located within the parent branch.

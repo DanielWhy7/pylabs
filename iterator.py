@@ -1,46 +1,53 @@
 import csv
 import os
-from typing import Iterator, Dict
+from typing import Iterator, Dict, Any, List
 
-class AnnotationIterator:
+class CoverPathIterator:
   """
-  A custom iterator that yields file paths from a CSV annotation file.
+  Custom sequence iterator over downloaded image absolute and relative file locations
+  derived from a saved laboratory annotation index sheet.
   """
   def __init__(self, annotation_path: str) -> None:
     """
-    Initializes the iterator with the path to the CSV annotation file.
-    :param annotation_path: Path to the CSV file containing annotations.
+    Initializes the sequence stream iterator tracking generated annotation records.
+    :param annotation_path: Absolute or relative disk file path to the parsed CSV tracker metadata index.
     """
     if not os.path.exists(annotation_path):
-      raise FileNotFoundError(f"Annotation file not found at: {annotation_path}")
+      raise FileNotFoundError(f"Requested index manifest target not found on disk at: '{annotation_path}'")
 
     self.annotation_path: str = annotation_path
-    self._file = open(self.annotation_path, mode='r', newline='', encoding='utf-8')
-    self._reader = csv.reader(self._file)
+    self._file_stream = open(self.annotation_path, mode='r', newline='', encoding='utf-8')
+    self._csv_reader = csv.reader(self._file_stream)
 
-    # Skip headers if present
+    # Safely capture and isolate column header labels if present
     try:
-      self._headers = next(self._reader)
+      self._headers: List[str] = next(self._csv_reader)
     except StopIteration:
       self._headers = []
 
-  def __iter__(self) -> 'AnnotationIterator':
-    """Returns the iterator object itself."""
+  def __iter__(self) -> 'CoverPathIterator':
+    """
+    Returns the instance itself to conform to Python's standard iteration structure.
+    :return: Current CoverPathIterator object context.
+    """
     return self
 
   def __next__(self) -> Dict[str, str]:
     """
-    Returns the next record's absolute and relative paths.
-    :return: A dictionary containing 'absolute_path' and 'relative_path'.
+    Advances sequentially and extracts path pairs from the underlying annotation records.
+    :return: Dictionary object referencing both absolute and relative filesystem paths.
+    :raises StopIteration: Signifies that file row processing targets have been fully exhausted.
     """
     try:
-      row = next(self._reader)
+      row: List[str] = next(self._csv_reader)
+      # Safeguard parsing context against corrupted or incomplete spreadsheet lines
       if len(row) < 2:
-        return self.__next__() # Skip malformed lines safely
+        return self.__next__()
+
       return {
-        "absolute_path": row[0],
-        "relative_path": row[1]
+        "absolute_path": row[0].strip(),
+        "relative_path": row[1].strip()
       }
     except StopIteration:
-      self._file.close()
+      self._file_stream.close()
       raise StopIteration
