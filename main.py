@@ -1,73 +1,49 @@
 import argparse
-import re
+import sys
+from scraper import get_genre_urls, download_book_covers, save_annotation_csv
+from iterator import AnnotationIterator
 
-def parse_profiles(text : str) -> List[Dict[str, str]]:
+def main() -> None:
   """
-  Parses the file text into separate profiles.
-  Each profile starts with a number like '1)', '2)', etc.
-  Inside a profile, fields have the form 'Key: value'.
+  Main driver execution managing programmatic interfaces.
   """
-  profiles = []
-  blocks = re.split(r'\n(?=\d+\))', text.strip())
-  for block in blocks:
-    lines = [line.strip() for line in block.strip().split('\n') if line.strip()]
-    if not lines:
-      continue
-    if re.fullmatch(r'\d+\)', lines[0]):
-      lines = lines[1:]
-    profile = {}
-    for line in lines:
-      match = re.match(r'^([^:]+)(:)\s*(.*)$', line)
-      if match:
-        key = match.group(1).strip()
-        cemicolon = match.group(2).strip()
-        value = match.group(3).strip()
-        profile[key] = value
-    if profile:
-      profiles.append(profile)
-  return profiles
-
-
-def is_valid_gender_male(gender : str) -> bool:
-  """Checks whether the gender is male."""
-  return re.fullmatch(r'^(М|м|Мужской|мужской)$', gender.strip()) is not None
-
-
-def profile_to_text(profile : Dict[str, str], index : int) -> str:
-  """Builds the profile text for saving to a file."""
-  lines = [f"{index})"]
-  for key in ['Фамилия', 'Имя', 'Пол', 'Дата рождения', 'Номер телефона или email', 'Город']:
-    if key in profile:
-      lines.append(f"{key}: {profile[key]}")
-  return '\n'.join(lines)
-
-
-def main():
-  parser = argparse.ArgumentParser(description='Counting male profiles')
-  parser.add_argument('filename', type=str, help='path to the file with profiles')
-  parser.add_argument('-o', '--output', type=str, default='output.txt',
-            help='file to save male profiles (default: output.txt)')
+  parser = argparse.ArgumentParser(description="Lab 2: Variant 2 Equal Count Book Genre Scraper")
+  parser.add_argument('--genres', type=str, nargs='+', required=True, help="List of target genres (e.g. Travel Mystery)")
+  parser.add_argument('--count', type=int, default=15, help="Number of items to fetch per genre")
+  parser.add_argument('--output_dir', type=str, default="downloaded_covers", help="Destination download path")
+  parser.add_argument('--csv_path', type=str, default="annotation.csv", help="Target output annotation metadata CSV")
+  
   args = parser.parse_args()
+  
+  try:
+    print("🔍 Fetching target site catalogs...")
+    available_genres = get_genre_urls()
+    
+    all_records = []
+    for genre_name in args.genres:
+      normalized_name = genre_name.strip().lower()
+      if normalized_name not in available_genres:
+        print(f"⚠️ Warning: Genre '{genre_name}' not found on site. Skipping.")
+        continue
+        
+      print(f"📥 Downloading cover sets for genre: '{genre_name}'...")
+      genre_dir = os.path.join(args.output_dir, normalized_name)
+      records = download_book_covers(available_genres[normalized_name], args.count, genre_dir)
+      all_records.extend(records)
+      
+    if all_records:
+      save_annotation_csv(all_records, args.csv_path)
+      print(f"✅ Download complete. Index metadata stored safely inside: {args.csv_path}")
+      
+      print("\n🔄 Verification step: Parsing file records through Custom Iterator...")
+      path_iterator = AnnotationIterator(args.csv_path)
+      for idx, entry in enumerate(path_iterator, 1):
+        print(f"Record #{idx} -> Relative File Path: {entry['relative_path']}")
+    else:
+      print("❌ No matching files were scraped.")
+      
+  except Exception as exc:
+    print(f"Fatal operation error encountered: {exc}", file=sys.stderr)
 
-  with open(args.filename, 'r', encoding='utf-8') as file:
-    text = file.read()
-
-  profiles = parse_profiles(text)
-
-  male_profiles = []
-  for profile in profiles:
-    gender = profile.get('Пол', '')
-    if is_valid_gender_male(gender):
-      male_profiles.append(profile)
-
-  print(f"Number of male profiles: {len(male_profiles)}")
-
-  with open(args.output, 'w', encoding='utf-8') as out_file:
-    for i, profile in enumerate(male_profiles, start=1):
-      out_file.write(profile_to_text(profile, i) + '\n\n')
-
-  print(f"Profiles saved to file: {args.output}")
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
   main()
