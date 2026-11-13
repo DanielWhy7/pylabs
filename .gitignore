@@ -1,1 +1,4 @@
-output.txt
+/venv
+/__pycache__
+/scraped_book_covers
+covers_annotation.csv

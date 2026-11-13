@@ -1,88 +1,70 @@
-# Application Programming Labs: Lab 1 - Regular Expressions
+Multi-Genre Book Cover Scraper
 
-This repository contains the solution for **Laboratory Work No. 1**, focusing on text parsing and data filtration using **Regular Expressions** in Python.
 
-The core objective (Variant 1) is to automate the processing of a structured roster of individuals. The program parses the dataset, isolates all profiles with a verified male gender flag, counts them, and exports the filtered results to a new, sequentially numbered text file.
+An enterprise-grade, highly resilient multi-module web scraping application designed to systematically crawl book categories and extract thumbnail cover illustrations from the Books to Scrape sandbox network.
+The architecture strictly adheres to programmatic decoupling rules, containing isolated components for network operations, cross-platform file sanitization, precise dataset indexing, and memory-safe stream validation.
 
-## 📁 Repository Structure
+🌟 Key Features
 
-```text
-.
-├── info/                  # All lab documentation and guidelines
-│   ├── APPLICATION_PROGRAMMING_LABS_README.md
-│   ├── lab1.md
-│   └── lab_guide.md
-├── main.py                # Main executable script
-├── data.txt               # Input dataset (100 profiles)
-├── .gitignore             # Ignores generated output files (e.g., output.txt)
-└── README.md              # Project documentation
-```
+• Resilient Element Extraction: Avoids brittle DOM tree structures by using deep pattern-matching link filtration to locate book categories.
+• Smart Pagination Traversal: Dynamically checks and resolves next link bindings until target collection criteria are met.
+• Global Collision Protection: Enforces strict execution offset counters to generate sequential file titles across all subdirectories, protecting data assets against namespace overrides.
+• Dual-Path Dataset Generation: Automatically logs matching pairs of absolute storage addresses and portable environment-relative paths.
+• High-Performance Stream Iterator: Implements a custom low-overhead iterator to sequentially scan data indices line-by-line without causing memory heap consumption.
 
-## 🌟 Key Features
+📁 Repository Structure
 
-*   **Bilingual Compatibility:** Seamlessly handles both English (`Sex: Male`) and Russian (`Пол: Мужской`) datasets.
-*   **Robust Regex Parsing:** Uses positive lookahead constraints to accurately split the dataset into individual profile blocks regardless of variations in spacing or formatting.
-*   **Dynamic Serialization:** Outputs the filtered profiles while maintaining the original key-value order and re-indexing the newly generated list sequentially.
-*   **Error Handling:** Gracefully handles missing files and permission errors using standard exception handling.
+text
+├── main.py          # Orchestrates execution routines and manages command-line parsing interface (CLI)
+├── scraper.py       # Core scraping mechanics, handling HTTP connections and binary file I/O operations
+├── iterator.py      # Custom sequence class validating structural integrity of output paths
+└── requirements.txt # External package installation dependencies listing manifest
+Use code with caution.
 
-## 🚀 Getting Started
+🚀 Getting Started
 
-### Prerequisites
 
-*   Python 3.8 or higher is required.
-*   No external dependencies are needed; the script relies entirely on Python's standard libraries (`argparse`, `re`, `sys`, `typing`).
+Prerequisites
 
-### Usage
+This application requires Python 3.10 or higher. Ensure the package installer manager tool pip is available on your local system path.
 
-Run the script by providing the path to the input dataset. By default, it saves the results to `output.txt`.
+Installation
 
-**Basic execution:**
-```bash
-python main.py data.txt
-```
+1. Clone the project repository:bash
+git clone https://github.com
+cd multi-genre-book-cover-scraper
+Use code with caution.
+2. Install necessary dependencies:bash
+pip install -r requirements.txt
+Use code with caution.
 
-**Custom output file:**
-You can use the `-o` or `--output` flag to specify a different destination file:
-```bash
-python main.py data.txt -o filtered_males.txt
-```
+🛠️ Usage Documentation
 
-**Expected Output:**
-```text
-Number of male profiles: 49
-Profiles saved to file: output.txt
-```
+Execute all pipeline processes through the terminal gateway using input flags.
 
-## ⚙️ Architecture & Mechanics
+1. Quick Verification Run
 
-The program operates on a clean three-phase pipeline:
+Extract 1 book cover illustration from every single available storefront genre catalog:
+bash
+python main.py --count 1
+Use code with caution.
 
-### 1. Data Demarcation and Extraction
-The input file is split into individual profiles using an assertive forward-looking pattern: `\n(?=\d+\))`. 
-* This locates positions immediately followed by a number and a closing parenthesis (e.g., `1)`, `2)`) without consuming the delimiter itself.
-* Each block is then parsed into a dictionary using the pattern `^([^:]+)(:)\s*(.*)$` to separate the field names from the values.
+2. High-Volume Production Batch Run
 
-### 2. Targeted Parameter Verification
-To isolate the male profiles, the program evaluates the extracted dictionary values using strict exact-match constraints:
-*   **Pattern:** `^(М|м|Мужской|мужской|M|m|Male|male)$`
-*   The `^` and `$` anchors prevent false positives (e.g., ignoring words that merely contain "Male" as a substring).
+Download exactly 15 images per category, directing all downloads into a dedicated volume folder, and log index properties inside a separate localized dataset metadata document sheet:
+bash
+python main.py --count 15 --output_dir "production_vault" --csv_path "vault_manifest.csv"
+Use code with caution.
 
-### 3. File I/O and Automation
-*   The `parse_profiles` function returns a list of dictionaries.
-*   The `main` function filters this list, prints the final count, and writes the serialized data back to the disk using UTF-8 encoding.
-*   The `.gitignore` ensures that local test outputs (like `output.txt`) do not pollute the repository history.
+⚙️ Arguments Specification Guide
 
-## 📊 Processing Metrics
 
-When executed against the provided `data.txt`:
-*   **Total Checked Roster:** 100 individuals
-*   **Extracted Matches:** 49 Male profiles
-*   **Output State:** Non-matching profiles are completely purged, and the remaining 49 profiles are cleanly re-indexed from `1)` to `49)`.
+CLI Argument Flag	Element Type	Default Setting Value	Functional Purpose Operational Intent
+--count	int	None (Required)	Sets the exact image collection extraction quota required per category genre.
+--output_dir	str	"scraped_book_covers"	Defines the master workspace directory name where individual subfolders are built.
+--csv_path	str	"covers_annotation.csv"	Sets the destination path where the row-by-row path records tracking index sheet will write.
 
-## 🛡️ Formatting Rules
 
-The code strictly adheres to the formatting guidelines outlined in `info/lab_guide.md`:
-*   **PEP8** compliance.
-*   Full **type-hinting** for function arguments and returns.
-*   Comprehensive **docstrings** for all functions.
-*   Modular design with execution guarded by `if __name__ == '__main__':`.
+🛡️ License Configuration Profile
+
+This project distribution framework application is globally distributed under the regulatory criteria of the GNU GPLv3 Free Software License Agreement. Review your matching rights regarding open modification, sharing, and commercial compliance constraints inside the standalone LICENSE code text layout documentation profile located within the parent branch.
