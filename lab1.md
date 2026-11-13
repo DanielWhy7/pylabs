@@ -1,275 +1,275 @@
-# Лабораторная работа № 1
-# Регулярные выражения
+# Laboratory Work No. 1
+# Regular Expressions
 
-- [Теория](#теория)
-  - [Чтение из файла](#чтение-из-файла)
-  - [Аргументы командной строки](#аргументы-командной-строки)
-  - [Регулярные выражения](#регулярные-выражения-и-библиотека-re)
-  - [Полезные ссылки](#полезные-ссылки)
-- [Задание](#задание)
-  - [Общее задание](#общее-задание)
-  - [Варианты](#варианты)
+- [Theory](#theory)
+  - [Reading from a file](#reading-from-a-file)
+  - [Command-line arguments](#command-line-arguments)
+  - [Regular expressions](#regular-expressions-and-the-re-library)
+  - [Useful links](#useful-links)
+- [Task](#task)
+  - [General task](#general-task)
+  - [Variants](#variants)
 
-# Теория
+# Theory
 
-Ниже описана минимальная теория, которая может пригодиться во время выполнения лабораторной. Более подробную информацию смотрите в лекциях по курсу и в разделе "полезные ссылки".
+Below is the minimal theory that may be useful while completing the lab. For more detailed information, see the course lectures and the "useful links" section.
 
-## Чтение из файла
+## Reading from a file
 
-Для чтения из файла необходимо открыть файловый поток, вызвав функцию `open()`:
+To read from a file, you need to open a file stream by calling the `open()` function:
 
 ```py
 file = open("file_name.txt", "r")
 ```
 
-`"file_name.txt"` - путь к файлу;
+`"file_name.txt"` — path to the file;
 
-`"r"` - режим чтения файла (read);
+`"r"` — file reading mode (read);
 
-`file` - переменная файлового потока.
+`file` — file stream variable.
 
-Считать информацию из файла можно, использовав один из следующих методов файлового потока:
+You can read information from the file using one of the following file stream methods:
 
-- `readline()` - считывает одну строку из файла
+- `readline()` — reads one line from the file
 
-- `read()` - считывает все содержимое файла в одну строку
+- `read()` — reads the entire contents of the file into a single string
 
-- `readlines()` - считывает все строки файла в список
+- `readlines()` — reads all lines of the file into a list
 
-После чтения файловый поток необходимо закрыть с помощью метода `close()`:
+After reading, the file stream must be closed using the `close()` method:
 
 ```py
 file.close()
 ```
 
-Однако, более оптимальным вариантом будет использование конструкции `with`, которая автоматически закроет файловый поток:
+However, a more optimal approach is to use the `with` construct, which automatically closes the file stream:
 
 ```py
 with open("my_file.txt", "r") as file:
     text = file.read()
 ```
 
-## Аргументы командной строки
+## Command-line arguments
 
-Для передачи аргументов черезз командную строку используется встроенный модуль `argparse`:
+To pass arguments through the command line, the built-in `argparse` module is used:
 
 ```py
 import argparse
 ```
 
-Пример использования:
+Example of use:
 ```py
 import argparse
 
-parser = argparse.ArgumentParser()  # создание экземпляра парсера
-parser.add_argument('name', type=str, help='your name')  # добавление позиционного аргумента командной строки
-args = parser.parse_args()  # парсинг аргументов
-print(f"Hello, {args.name}!")  # использование полученного значения аргумента
+parser = argparse.ArgumentParser()  # create the parser instance
+parser.add_argument('name', type=str, help='your name')  # add a positional command-line argument
+args = parser.parse_args()  # parse the arguments
+print(f"Hello, {args.name}!")  # use the obtained argument value
 ```
 
-`'name'` - название аргумента (обязательный параметр)
+`'name'` — argument name (required parameter)
 
-`type` - тип данных аргумента (необязательный параметр)
+`type` — argument data type (optional parameter)
 
-`help` - подсказка для аргумента (необязательный параметр)
+`help` — help text for the argument (optional parameter)
 
 
-Запуск программы:
+Running the program:
 
 ```
 python my_program.py Ivan
 Hello, Ivan!
 ```
 
-Аргументов командной строки может быть любое количество, они могут быть **позиционные (обязательные)** и **необязательные**.
-Необязательный аргумент добавляется следующим образом:
+There can be any number of command-line arguments; they can be **positional (required)** and **optional**.
+An optional argument is added as follows:
 ```py
 parser.add_argument("-s", "--surname", type=str, help="your surname")
 ```
 
-`"--surname"` - полное название аргумента (обязательный параметр)
-`"-s"` - сокращённое название (необязательный параметр)
+`"--surname"` — full argument name (required parameter)
+`"-s"` — short name (optional parameter)
 
-В командной строке для добавления необязательного аргумента необходимо указать либо полное, либо сокращённое название:
+In the command line, to add an optional argument, you must specify either the full or the short name:
 
 ```
 my_program.py Ivan -s Ivanov
 ```
-или
+or
 ```
 my_program.py Ivan -surname Ivanov
 ```
 
-Также перед использованием необходимо проверять, существует ли такой аргумент:
+Also, before using, you must check whether such an argument exists:
 
 ```py
-if args.surname is not None:  # проверка на существование значения
+if args.surname is not None:  # check whether a value exists
     print(f"Hello, {args.name} {args.surname}!")
 else:
     print(f"Hello, {args.name}!")
 ```
 
 
-## Регулярные выражения и библиотека re
+## Regular expressions and the re library
 
-Регулярные выражения в Python используются для поиска, обработки и манипуляции строками, соответствующими заданным шаблонам.
-Шаблоном для регулярных выражений может считаться любая строка - в этом случае будет выполнен обычный поиск по подстроке. Если же мы хотим создать более сложный шаблон, то необходимо использовать спецсимволы.
+Regular expressions in Python are used to search, process, and manipulate strings that match specified patterns.
+Any string can be considered a regular expression pattern — in that case, a regular substring search will be performed. If we want to create a more complex pattern, we need to use special characters.
 
-### Шаблоны, соответствующие одному символу
+### Patterns matching a single character
 
-- `.` - Один любой символ, кроме новой строки `\n`.
-- `\d` - Любая цифра
-- `\s` - Любой пробельный символ (пробел, табуляция, конец строки и т.п.)
-- `\w` - Любая буква (то, что может быть частью слова), а также цифры и `_`
-- `[..]` - Один из символов в скобках,
-а также любой символ из диапазона `a-b`
-- `[^..]` - Любой символ, кроме перечисленных
+- `.` — Any single character except a newline `\n`.
+- `\d` — Any digit
+- `\s` — Any whitespace character (space, tab, end of line, etc.)
+- `\w` — Any letter (something that can be part of a word), as well as digits and `_`
+- `[..]` — One of the characters in brackets,
+or any character from the range `a-b`
+- `[^..]` — Any character except the listed ones
 
-### Квантификаторы (указание количества повторений)
+### Quantifiers (specifying the number of repetitions)
 
-- `{n}` - Ровно n повторений
-- `{m,n}` - От m до n повторений включительно
-- `{m,}` - Не менее m повторений
-- `{,n}` - 	Не более n повторений
-- `?` - Ноль или одно вхождение, синоним {0,1}
-- `*` - Ноль или более, синоним {0,}
-- `+` - Одно или более, синоним {1,}
+- `{n}` — Exactly n repetitions
+- `{m,n}` — From m to n repetitions inclusive
+- `{m,}` — At least m repetitions
+- `{,n}` — At most n repetitions
+- `?` — Zero or one occurrence, synonym for {0,1}
+- `*` — Zero or more, synonym for {0,}
+- `+` — One or more, synonym for {1,}
 
-### Функции библиотеки re
+### Functions of the re library
 
-Библиотека `re` в Python предоставляет функции для работы с регулярными выражениями.
+The `re` library in Python provides functions for working with regular expressions.
 
-`re.search(pattern, string)` - Найти в строке string первую строчку, подходящую под шаблон pattern;
+`re.search(pattern, string)` — Find in the string the first substring matching the pattern;
 
-`re.fullmatch(pattern, string)` - Проверить, подходит ли строка string под шаблон pattern;
+`re.fullmatch(pattern, string)` — Check whether the string matches the pattern;
 
-`re.split(pattern, string, maxsplit=0)` - Аналог str.split(), только разделение происходит по подстрокам, подходящим под шаблон pattern;
+`re.split(pattern, string, maxsplit=0)` — Analogous to str.split(), but splitting is done by substrings matching the pattern;
 
-`re.findall(pattern, string)` - Найти в строке string все непересекающиеся шаблоны pattern;
+`re.findall(pattern, string)` — Find in the string all non-overlapping occurrences of the pattern;
 
-`re.finditer(pattern, string)` - Итератор по всем непересекающимся шаблонам pattern в строке string (выдаются match-объекты);
+`re.finditer(pattern, string)` — Iterator over all non-overlapping occurrences of the pattern in the string (returns match objects);
 
-`re.sub(pattern, repl, string, count=0)` - Заменить в строке string все непересекающиеся шаблоны pattern на repl;
+`re.sub(pattern, repl, string, count=0)` — Replace in the string all non-overlapping occurrences of the pattern with repl;
 
-Пример поиска по шаблону:
+Example of searching by pattern:
 
 ```py
 import re
 
-text = "Список чисел: 123, 456, 789 и 123"  # строка поиска
-pattern = r'\d+'  # шаблон
+text = "List of numbers: 123, 456, 789 and 123"  # search string
+pattern = r'\d+'  # pattern
 numbers = re.findall(number_pattern, text)
 print(numbers)
 ```
 
-Результат:
+Result:
 
 ```
 ['123', '456', '789', '123']
 ```
 
-Пример разделения строки по шаблону:
+Example of splitting a string by pattern:
 
 ```py
 import re
 
-text = "один, два, три; четыре. пять! шесть"  # строка поиска
+text = "one, two, three; four. five! six"  # search string
 
-# Разделяем строку по разделителям: точка с запятой, запятая, точка, восклицательный знак, пробельный символ
+# Split the string by delimiters: semicolon, comma, period, exclamation mark, whitespace
 parts = re.split(r'[;,.!\s]+', text)
 
 print(parts)
 ```
 
-Результат:
+Result:
 ```
-['один', 'два', 'три', 'четыре', 'пять', 'шесть']
+['one', 'two', 'three', 'four', 'five', 'six']
 ```
 
-## Полезные ссылки
-- [Чтение из файла (doc)](https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files)
+## Useful links
+- [Reading from a file (doc)](https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files)
 - [argparse (doc)](https://docs.python.org/3/library/argparse.html)
 - [re (doc)](https://docs.python.org/3/library/re.html)
 
 
-# Задание
-## Общее задание
+# Task
+## General task
 
-Открыть и прочитать файл. Название файла вводится через аргументы командной строки. Воспользовавшись регулярными выражениями, выполнить задание согласно варианту. Вывести на экран результат.
+Open and read a file. The file name is entered through command-line arguments. Using regular expressions, complete the task according to your variant. Output the result to the screen.
 
-В файле `data.txt` дан список анкет людей со следующей структурой:
+The file `data.txt` contains a list of people's profiles with the following structure:
 
-- Фамилия
-- Имя
-- Пол
-- Дата рождения
-- Номер телефона или email
-- Город
+- Surname
+- First name
+- Sex
+- Date of birth
+- Phone number or email
+- City
 
-Валидные форматы для каждого пункта:
+Valid formats for each item:
 
-1. Фамилия и имя: 
-   - Начинаются с заглавной буквы
-2. Пол:
+1. Surname and first name:
+   - Start with an uppercase letter
+2. Sex:
    - М, м, Мужской, мужской, Ж, ж, Женский, женский
-3. Дата рождения:
-   - Форматы: 
+3. Date of birth:
+   - Formats:
       - 01/01/2000
       - 01-01-2000
       - 01.01.2000
       - 1/1/2000
       - 1-1-2000
       - 1.1.2000
-   - Должен быть корректный диапазон дней и месяцев, год - от 1900 до текущего.
-4. Номер телефона или email:
-   - Номер телефона:
-      - 11 цифр
-      - Начинается с 8 или +7
-      - Формат: 
+   - There must be a correct range of days and months, year — from 1900 to the current year.
+4. Phone number or email:
+   - Phone number:
+      - 11 digits
+      - Starts with 8 or +7
+      - Format:
          - 8 (012) 345-67-89
          - 80123456789
          - 8 012 345-67-89
          - 8 (012) 345 67 89
          - 8 012 345 67 89
    - email:
-     - Домены: gmail.com, mail.ru, yandex.ru
-     - Локальная часть (название):
-        - Буквы (A-Z, a-z)
-        - Цифры (0-9)
-        - Символы: . _ % + -
-        - Длина: до 64 символов
-5. Город:
-   - Формат: Москва, г. Москва
+     - Domains: gmail.com, mail.ru, yandex.ru
+     - Local part (name):
+        - Letters (A-Z, a-z)
+        - Digits (0-9)
+        - Symbols: . _ % + -
+        - Length: up to 64 characters
+5. City:
+   - Format: Москва, г. Москва
 
-## Варианты
+## Variants
 
-1. Посчитайте количество анкет мужчин в списке. Выведите их количество на экран и сохраните анкеты в новый файл.
-1. Посчитайте количество людей, родившихся в 21 веке. Выведите их количество на экран и сохраните анкеты в новый файл.
-1. Посчитайте количество людей возрастом от 30 до 40 лет. Выведите их количество на экран и сохраните анкеты в новый файл.
-1. Найдите самого старого и самого молодого человека. Выведите их возраст и анкеты на экран.
-1. Найдите всех людей с фамилией Иванов(а). Выведите их количество на экран и сохраните анкеты в новый файл.
-1. Найти всех людей с фамилиями, оканчивающимися на "ов(а)". Выведите их количество на экран и сохраните анкеты в новый файл.
-1. Найдите всех людей, чьи телефоны имеют код города 927. Выведите их количество на экран и сохраните их анкеты в новый файл.
-1. Найдите всех людей, проживающих в городе Москва. Выведите их количество на экран и сохраните их анкеты в новый файл.
-1. Посчитайте, какое имя встречается чаще всего. Выведите имя и количество повторений на экран.
-1. Найдите все женские имена, начинающиеся с буквы А. Выведите их количество на экран и сохраните анкеты в новый файл.
-1. Пользователь вводит имя человека через аргументы командной строки. Подсчитайте количество людей с таким именем. Выведите их количество на экран и сохраните анкеты в новый файл.
-1. Определите, какой код оператора среди телефонных номеров встречается чаще всего. Выведите код и количество его повторений на экран.
-1. Найдите анкеты людей, у которых указан номер телефона (в корректном формате). Выведите их количество на экран и сохраните найденные анкеты в новый файл.
-1. Найдите анкеты людей, у которых указана почта (в корректном формате). Выведите их количество на экран и сохраните найденные анкеты в новый файл.
-1. Проверьте, что номера телефонов уникальны. Анкеты с дубликатами выведите на экран.
-1. Проверьте, что адреса почты уникальны. Анкеты с дубликатами выведите на экран.
-1. Проверьте, что все имена и фамилии начинаются с заглавной буквы. Если имя или фамилия начинаются со строчной буквы - исправьте это и сохраните результат в новый файл.
-1. Найдите номера телефонов с некорректным форматом. Выведите найденные анкеты на экран. Удалите найденные анкеты и сохраните результат в новый файл.
-1. Найдите адреса почты с некорректным форматом. Выведите найденные анкеты на экран. Удалите найденные анкеты и сохраните результат в новый файл.
-1. Найдите даты рождения с некорректным форматом. Выведите найденные анкеты на экран. Удалите найденные анкеты и сохраните результат в новый файл.
-1. Составьте список фамилий и имён в формате "Фамилия И.". Отсортируйте получившийся список в алфавитном порядке и сохраните в новый файл. Все имена и фамилии должны иметь корректный формат.
-1. Создайте список в формате "Фамилия: номер телефона" и сохраните его в новый файл. Все номера должны иметь корректный формат.
-1. Создайте список в формате "Фамилия: адрес почты" и сохраните его в новый файл. Все адреса должны иметь корректный формат.
-1. Создайте список в формате "Фамилия: дата рождения". Отсортируйте его по возрасту и сохраните в новый файл. Все даты рождения должны иметь корректный формат.
-1. Отсортируйте исходный список по фамилиям и именам в алфавитном порядке и сохраните результат в новый файл (структура списка не меняется).
-1. Приведите все данные к единому шаблону (любому из допустимых). Сохраните результат в новый файл. Если данные указаны некорректно - поставьте прочерк.
-1. Посчтиайте статистику по доменам адресов почты: создайте список в формате "Домен: количество",  отсортируйте его по количеству людей и сохраните в новый файл.
-1. Посчитайте статистику по городам: посчитайте количиство людей из каждого города, создайте список в формате "Город: количество",  отсортируйте его по количеству людей и алфавитному порядку и сохраните в новый файл.
-1. Посчитайте статистику по возрасту: создайте два списка - для мужчин и женщин, в формате "Диапазон - количество" и сохраните его в новый файл. Диапазоны для мужчин: 0-17, 18-64, 65+, для женщин: 0-17, 18-59, 60+.
-1. Сохраните данные в виде таблицы в формате csv. Таблица должна содержать колонки: Фамилия, Имя, Пол, Дата рождения, Номер телефона (прочерк если нет), Почта (прочерк, если нет), Город. Если данные в колонке некорректны - поставьте прочерк.
+1. Count the number of male profiles in the list. Print their count to the screen and save the profiles to a new file.
+2. Count the number of people born in the 21st century. Print their count to the screen and save the profiles to a new file.
+3. Count the number of people aged 30 to 40. Print their count to the screen and save the profiles to a new file.
+4. Find the oldest and the youngest person. Print their age and profiles to the screen.
+5. Find all people with the surname Иванов(а). Print their count to the screen and save the profiles to a new file.
+6. Find all people with surnames ending in "ов(а)". Print their count to the screen and save the profiles to a new file.
+7. Find all people whose phone numbers have the city code 927. Print their count to the screen and save their profiles to a new file.
+8. Find all people living in the city of Москва. Print their count to the screen and save their profiles to a new file.
+9. Count which first name occurs most frequently. Print the name and the number of repetitions to the screen.
+10. Find all female names starting with the letter А. Print their count to the screen and save the profiles to a new file.
+11. The user enters a person's name through command-line arguments. Count the number of people with that name. Print the count to the screen and save the profiles to a new file.
+12. Determine which operator code occurs most frequently among the phone numbers. Print the code and the number of its repetitions to the screen.
+13. Find profiles of people who have a phone number (in a correct format). Print their count to the screen and save the found profiles to a new file.
+14. Find profiles of people who have an email (in a correct format). Print their count to the screen and save the found profiles to a new file.
+15. Verify that phone numbers are unique. Print the profiles with duplicates to the screen.
+16. Verify that email addresses are unique. Print the profiles with duplicates to the screen.
+17. Verify that all first names and surnames start with an uppercase letter. If a first name or surname starts with a lowercase letter — fix it and save the result to a new file.
+18. Find phone numbers with an incorrect format. Print the found profiles to the screen. Delete the found profiles and save the result to a new file.
+19. Find email addresses with an incorrect format. Print the found profiles to the screen. Delete the found profiles and save the result to a new file.
+20. Find dates of birth with an incorrect format. Print the found profiles to the screen. Delete the found profiles and save the result to a new file.
+21. Compose a list of surnames and first names in the format "Surname I.". Sort the resulting list in alphabetical order and save it to a new file. All first names and surnames must be in a correct format.
+22. Create a list in the format "Surname: phone number" and save it to a new file. All numbers must be in a correct format.
+23. Create a list in the format "Surname: email address" and save it to a new file. All addresses must be in a correct format.
+24. Create a list in the format "Surname: date of birth". Sort it by age and save it to a new file. All dates of birth must be in a correct format.
+25. Sort the original list by surnames and first names in alphabetical order and save the result to a new file (the structure of the list is unchanged).
+26. Bring all data to a single template (any of the allowed ones). Save the result to a new file. If the data is incorrect — put a dash.
+27. Calculate statistics by email domains: create a list in the format "Domain: count", sort it by the number of people and save it to a new file.
+28. Calculate statistics by cities: count the number of people from each city, create a list in the format "City: count", sort it by the number of people and alphabetical order and save it to a new file.
+29. Calculate statistics by age: create two lists — for men and women, in the format "Range — count" and save it to a new file. Ranges for men: 0-17, 18-64, 65+, for women: 0-17, 18-59, 60+.
+30. Save the data as a table in CSV format. The table must contain the columns: Surname, First name, Sex, Date of birth, Phone number (dash if absent), Email (dash if absent), City. If the data in a column is incorrect — put a dash.

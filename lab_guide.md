@@ -1,23 +1,23 @@
-# Правила оформления лабораторных работ
+# Rules for Completing Laboratory Work
 
-В данном гайде описаны основные правила выполнения лабораторных работ. Все примеры утрированы и используются для наглядной демонстрации правил.
+This guide describes the basic rules for completing laboratory work. All examples are exaggerated and are used to clearly demonstrate the rules.
 
-Основные правила:
-1. Соблюдать PEP8.
-1. Весь код должен быть оформлен в виде функций и классов.
-1. Использовать type-hinting (указание в функциях и классах типов данных).
-1. Прописывать docstring (описание функций).
-1. Разделять программу на отдельные модули.
-1. Функции вызывать в условии `if __name__ == '__main__'`
-1. Использовать механизм обработки исключений (обязательно после соответствующей лекции).
+Basic rules:
+1. Follow PEP8.
+2. All code must be formatted as functions and classes.
+3. Use type-hinting (specifying data types in functions and classes).
+4. Write docstrings (function descriptions).
+5. Separate the program into individual modules.
+6. Call functions inside the condition `if __name__ == '__main__'`
+7. Use the exception handling mechanism (mandatory after the corresponding lecture).
 
-Ниже эти правила разобраны на примерах.
+These rules are broken down with examples below.
 
-## 1. Функции
+## 1. Functions
 
-Код необходимо оформлять в виде функций. Каждая функция должна выполнять одну задачу. Глобальный код недопустим, за исключением констант.
+Code must be formatted as functions. Each function must perform a single task. Global code is unacceptable, except for constants.
 
-Рассмотрим пример программы, которая складывает два числа:
+Let's look at an example of a program that adds two numbers:
 ```py
 a = int(input())
 b = int(input())
@@ -25,7 +25,7 @@ c = a + b
 print(c)
 ```
 
-Она состоит только из глобального кода. Запишем правильный вариант с использованием функций:
+It consists only of global code. Let's write the correct version using functions:
 ```py
 def enter_number():
     return int(input())
@@ -39,31 +39,31 @@ def main():
     c = sum(a, b)
     print(c)
 ```
-Каждая функция здесь выполняет свою задачу:
-`enter_number()` - получает число и преобразует его к int, `sum()` - складывает два значения, `main()` - объединяет все функции в программу.
+Each function here performs its own task:
+`enter_number()` - gets a number and converts it to int, `sum()` - adds two values, `main()` - combines all functions into a program.
 
 
 ## 2. Type-hinting
 
-Отсутствие явного указания типов данных может привести к ошибкам. Во избежание подобных проблем лучше использовать подсказки типов.
+The lack of explicit data types can lead to errors. To avoid such problems, it is better to use type hints.
 
 ```py
 def sum(a: int, b: int) -> int:
     return a + b
 ```
 
-`a: int` - тип данных аргумента функции
+`a: int` - data type of the function argument
 
-`-> int` - тип данных возвращаемого значения
+`-> int` - data type of the return value
 
-Если функция ничего не возвращает, лучше указать типом возвращаемого значения `None`:
+If the function returns nothing, it is better to specify `None` as the return type:
 
 ```py
 def print_hello(name: str) -> None:
     print(f"Hello, {name}!")
 ```
 
-Если аргументом является контейнер, содержащий один тип данных, это тоже можно явно указать в подсказках:
+If the argument is a container containing a single data type, this can also be explicitly specified in the hints:
 
 ```py
 def sum(numbers: list[int]) -> int:
@@ -73,9 +73,9 @@ def sum(numbers: list[int]) -> int:
     return res
 ```
 
-`list` - тип контейнера, `int` - тип содержимого контейнера.
+`list` - container type, `int` - type of the container's contents.
 
-Если для аргумента может быть несколько допустимых типов, то используйте `|`:
+If there are multiple acceptable types for an argument, use `|`:
 
 ```py
 def sum(a: int | float, b: int | float) -> int | float:
@@ -84,66 +84,66 @@ def sum(a: int | float, b: int | float) -> int | float:
 
 ## 3. Docstring
 
-Docstring является документацией внутри кода. Она особенно полезна, когда с кодом работает несколько человек (или когда ваш код проверяет преподаватель...)
+A docstring is documentation inside the code. It is especially useful when multiple people are working with the code (or when your code is being checked by a teacher...)
 
-Пример docstring для простых функций:
+Example of a docstring for simple functions:
 
 ```py
 def sum(a: int, b: int) -> int:
     """
-    Сумма a и b.
+    Sum of a and b.
     """
     return a + b
 ```
 
-Пример docstring для более сложных функций:
+Example of a docstring for more complex functions:
 ```py
 def sum(a: int, b: int) -> int:
     """
-    Сумма чисел.
-    :param a: первое слагаемое
-    :param b: второе слагаемое
-    :return: сумма
+    Sum of numbers.
+    :param a: first term
+    :param b: second term
+    :return: sum
     """
     return a + b
 ```
-Во втором случае мы явно прописываем каждый параметр и возвращаемое значение. 
+In the second case, we explicitly write out each parameter and the return value. 
 
 
-## 4. Старт программы
+## 4. Program Start
 
-При импорте модуля выполняется весь его глобальный код. Предположим, у нас есть модуль `my_sum.py`, содержащий следующий код:
+When a module is imported, all of its global code is executed. Suppose we have a module `my_sum.py` containing the following code:
 ```py
 def sum(a: int, b: int) -> int:
     """
-    Сумма a и b.
+    Sum of a and b.
     """
     return a + b
 
 print(sum(1, 2))
 ```
 
-`print(sum(1, 2))` - глобальный код.
-Импоритируем этот модуль в другой файл:
+`print(sum(1, 2))` is global code.
+Let's import this module into another file:
 
 ```py
 import my_sum
 
 print(my_sum.sum(3, 4))
 ```
-При запуске вместо одного результата будет напечатано сразу два - из импортированного файла и из запускаемого:
+When run, instead of one result, two will be printed at once - from the imported file and from the running one:
 
 ```
 3
 7
 ```
 
-Для того, чтобы избежать подобной ситуации, следует использовать конструкцию `if __name__ == '__main__'`:
+To avoid such a situation, one should use the construct `if __name__ == '__main__'`:
 
 ```py
 def sum(a: int, b: int) -> int:
     """
-    Сумма a и b.
+    Sum of a and b.
     """
     return a + b
 
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     print(sum(1, 2))
 ```
 
-Теперь код `print(sum(1, 2))` выполнится только если мы запустим файл `my_sum.py`, если же этот файл импортируется, то код выполнен не будет. Однако, не стоит забывать, что код, написанный после `if __name__ == '__main__'` всё ещё является глобальным кодом, поэтому в нём нежелательно писать слишком много. В идеале нужно создать отдельную функцию `main()` и вызывать только её:
+Now the code `print(sum(1, 2))` will only execute if we run the file `my_sum.py`; if this file is imported, the code will not be executed. However, do not forget that the code written after `if __name__ == '__main__'` is still global code, so it is undesirable to write too much in it. Ideally, you should create a separate `main()` function and call only it:
 
 ```py
 if __name__ == "__main__":
@@ -160,9 +160,9 @@ if __name__ == "__main__":
 ```
 
 
-## 5. Обработка исключений
+## 5. Exception Handling
 
-Даже если ваш код будет абсолютно правильным, при работе с данными, формат которых заранее неизвестен, могут возникать ошибки:
+Even if your code is absolutely correct, errors can occur when working with data whose format is unknown in advance:
 
 ```py
 a = int(input("Enter number: "))
@@ -174,8 +174,8 @@ Enter number: some string
 ValueError: invalid literal for int() with base 10: 'some string'
 ```
 
-В этом примере мы ввели строку вместо ожидаемого числа и получили исключение `ValueError`.
-Для того, чтобы предотвратить подобные ситуации, используйте механизм обработки исключений:
+In this example, we entered a string instead of the expected number and got a `ValueError` exception.
+To prevent such situations, use the exception handling mechanism:
 
 ```py
 a = input("Enter number: ")
@@ -189,7 +189,7 @@ Enter number: some string
 Error!
 ```
 
-Если вы знаете исключение какого типа ожидать, то явно прописывайте его в блоке `except` - это даст пользователю больше информации об ошибке:
+If you know what type of exception to expect, explicitly write it in the `except` block - this will give the user more information about the error:
 ```py
 a = input("Enter number: ")
 try:
@@ -203,7 +203,7 @@ Enter number: some string
 Error: invalid literal for int() with base 10: 'some string'
 ```
 
-Если вы хотите самостоятельно выбросить исключение, то используйте ключевое слово `raise`:
+If you want to throw an exception yourself, use the `raise` keyword:
 
 ```py
 if not a.isdigit():
@@ -214,9 +214,9 @@ Enter number: some string
 Error: Value is not integer number
 ```
 
-## Итог
+## Conclusion
 
-Итак, посмотрим на код, который у нас был вначале:
+So, let's look at the code we had at the beginning:
 
 ```py
 a = int(input())
@@ -225,12 +225,12 @@ c = a + b
 print(c)
 ```
 
-И применим к нему все рассмотренные выше правила:
+And apply all the rules discussed above to it:
 
 ```py
 def enter_number() -> int:
     """
-    Ввод числа с консоли.
+    Entering a number from the console.
     """
     num = input()
     if not num.isdigit():
@@ -239,7 +239,7 @@ def enter_number() -> int:
 
 def sum(a: int, b: int) -> int:
     """
-    Сумма a и b.
+    Sum of a and b.
     """
     return a + b
 
@@ -256,4 +256,4 @@ if __name__ == "__main__":
     main()
 ```
 
-В итоге у нас получился ~~отвратительно длинный~~ правильный код, который будет понятен вашим коллегам (и преподавателю) и не вызовет ошибок.
+As a result, we got ~~disgustingly long~~ correct code that will be understandable to your colleagues (and the teacher) and will not cause errors.
