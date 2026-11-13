@@ -1,5 +1,6 @@
 /venv
 /__pycache__
 /scraped_book_covers
-covers_annotation.csv
 /results
+covers_annotation.csv
+NVIM.md

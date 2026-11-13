@@ -30,7 +30,9 @@ def main() -> None:
     "__pycache__",
     "scraped_book_covers",
     "covers_annotation.csv",
-    "results"
+    "results",
+    "analyzed_data.csv",
+    "histogram.png"
   ]
 
   print("Starting repository cleanup...")
