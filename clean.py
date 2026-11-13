@@ -29,7 +29,8 @@ def main() -> None:
   targets = [
     "__pycache__",
     "scraped_book_covers",
-    "covers_annotation.csv"
+    "covers_annotation.csv",
+    "results"
   ]
 
   print("Starting repository cleanup...")

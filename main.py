@@ -1,76 +1,103 @@
 import argparse
-import sys
 import os
-import requests
-from typing import List, Dict
-from scraper import extract_all_genres, fetch_covers_from_genre, write_annotation_manifest
-from iterator import CoverPathIterator
+import sys
+
+import cv2
+
+from image_processor import (
+  load_image,
+  crop_top_left,
+  rotate_image,
+  overlay_transparent,
+)
+from visualizer import show_comparison
+
+
+def build_parser() -> argparse.ArgumentParser:
+  """
+  Builds the command-line argument parser.
+  :return: configured ArgumentParser
+  """
+  parser = argparse.ArgumentParser(
+    description=(
+      "Laboratory Work No. 3, Variant 1: cropping, rotation, and "
+      "semi-transparent overlay for images downloaded in Lab No. 2."
+    )
+  )
+  parser.add_argument("--image", required=True, help="Path to the base image")
+  parser.add_argument("--overlay", required=True, help="Path to the overlay image")
+  parser.add_argument("--output", required=True, help="Path to save the result")
+  parser.add_argument(
+    "--comparison",
+    default="comparison.png",
+    help="Path to save the comparison figure (default: comparison.png)",
+  )
+  parser.add_argument(
+    "--crop_width", type=int, required=True, help="Crop width in pixels"
+  )
+  parser.add_argument(
+    "--crop_height", type=int, required=True, help="Crop height in pixels"
+  )
+  parser.add_argument(
+    "--angle", type=float, default=45.0, help="Rotation angle in degrees"
+  )
+  parser.add_argument(
+    "--alpha",
+    type=float,
+    default=0.5,
+    help="Transparency of the overlaid image in [0, 1]",
+  )
+  return parser
+
 
 def run_pipeline() -> None:
   """
-  Orchestrates programmatic setup steps executing Variant 1 instructions, managing cross-module dependencies.
+  Executes variant 1: load → crop → rotate → semi-transparent overlay
+  → save → visualize.
   """
-  cli_parser = argparse.ArgumentParser(
-    description="Laboratory 2 Work: Comprehensive Multi-Genre Image Scraping Suite (Variant 1)"
-  )
-  cli_parser.add_argument(
-    '--count', type=int, required=True,
-    help="Target number of book thumbnail records requested for recovery inside every distinct genre catalog"
-  )
-  cli_parser.add_argument(
-    '--output_dir', type=str, default="scraped_book_covers",
-    help="Custom filesystem path specifying where file download structures must assemble (Default: scraped_book_covers)"
-  )
-  cli_parser.add_argument(
-    '--csv_path', type=str, default="covers_annotation.csv",
-    help="Assigned document storage target name routing compilation tracking parameters (Default: covers_annotation.csv)"
-  )
-
-  parsed_arguments = cli_parser.parse_args()
+  parser = build_parser()
+  args = parser.parse_args()
 
   try:
-    print("🌐 Contacting digital interface indexes...")
-    discovered_genres: Dict[str, str] = extract_all_genres()
+    base_image = load_image(args.image)
+    overlay_image = load_image(args.overlay)
 
-    session_compiled_records: List[Dict[str, str]] = []
-    running_total_count: int = 0
+    print(f"📷 Original image size: {base_image.shape[1]}x{base_image.shape[0]}")
+    print(f"🖼️ Overlay image size: {overlay_image.shape[1]}x{overlay_image.shape[0]}")
 
-    print(f"📂 Found {len(discovered_genres)} active genres. Beginning targeted downloads tracking processes...")
+    cropped = crop_top_left(base_image, args.crop_width, args.crop_height)
+    print(f"✂️ After cropping: {cropped.shape[1]}x{cropped.shape[0]}")
 
-    for name_token, target_web_endpoint in discovered_genres.items():
-      # Sanitize folder path assignments against reserved filesystem special symbol anomalies
-      sanitized_folder_name: str = name_token.replace(" ", "_").replace("/", "-")
-      genre_target_path: str = os.path.join(parsed_arguments.output_dir, sanitized_folder_name)
+    rotated = rotate_image(cropped, args.angle)
+    print(f"🔄 After rotation by {args.angle}°: {rotated.shape[1]}x{rotated.shape[0]}")
 
-      print(f"  📥 Downloading up to {parsed_arguments.count} items from category context: '{name_token}'...")
+    result = overlay_transparent(rotated, overlay_image, args.alpha)
+    print(f"✨ Final size: {result.shape[1]}x{result.shape[0]}")
 
-      genre_batch: List[Dict[str, str]] = fetch_covers_from_genre(
-        genre_url=target_web_endpoint,
-        limit=parsed_arguments.count,
-        dest_folder=genre_target_path,
-        session_offset=running_total_count
-      )
+    output_dir = os.path.dirname(os.path.abspath(args.output))
+    os.makedirs(output_dir, exist_ok=True)
+    if not cv2.imwrite(args.output, result):
+      raise OSError(f"Failed to save result to '{args.output}'")
+    print(f"💾 Result saved: {args.output}")
 
-      session_compiled_records.extend(genre_batch)
-      running_total_count += len(genre_batch)
+    show_comparison(
+      original=base_image,
+      result=result,
+      save_path=args.comparison,
+      result_path=args.output,
+      show_in_terminal=True,
+    )
+    print(f"📊 Comparison figure saved: {args.comparison}")
 
-    if session_compiled_records:
-      write_annotation_manifest(session_compiled_records, parsed_arguments.csv_path)
-      print(f"\n✨ Script successful! Captured {running_total_count} files total across discovered site categories.")
-      print(f"📄 Operational parameters mapped inside manifest log sheet: '{parsed_arguments.csv_path}'")
+  except FileNotFoundError as exc:
+    print(f"❌ File not found: {exc}", file=sys.stderr)
+  except ValueError as exc:
+    print(f"❌ Value error: {exc}", file=sys.stderr)
+  except OSError as exc:
+    print(f"❌ I/O error: {exc}", file=sys.stderr)
+  except Exception as exc:
+    print(f"❌ Unexpected error: {exc}", file=sys.stderr)
 
-      print("\n🔄 Initializing custom sequence loop generator test execution loop...")
-      index_path_iterator = CoverPathIterator(parsed_arguments.csv_path)
-
-      for structural_index, item_entry in enumerate(index_path_iterator, start=1):
-        print(f"  [File #{structural_index}] Relative Path Output Verified -> {item_entry['relative_path']}")
-    else:
-      print("⚠️ System operational warning: No matching content files were retrieved during analysis.")
-
-  except requests.RequestException as connection_error:
-    print(f"❌ Network operation failure tracking parameters: {connection_error}", file=sys.stderr)
-  except Exception as general_system_exception:
-    print(f"❌ Fatal execution engine breakdown: {general_system_exception}", file=sys.stderr)
 
 if __name__ == "__main__":
   run_pipeline()

@@ -39,7 +39,6 @@ class CoverPathIterator:
     """
     try:
       row: List[str] = next(self._csv_reader)
-      # Safeguard parsing context against corrupted or incomplete spreadsheet lines
       if len(row) < 2:
         return self.__next__()
 

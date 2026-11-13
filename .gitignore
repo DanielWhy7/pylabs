@@ -2,3 +2,4 @@
 /__pycache__
 /scraped_book_covers
 covers_annotation.csv
+/results
