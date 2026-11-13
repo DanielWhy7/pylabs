@@ -1,0 +1,94 @@
+import argparse
+import re
+import sys
+from typing import List, Dict
+
+
+def parse_profiles(text: str) -> List[Dict[str, str]]:
+  """
+  Parses the file text into separate profiles.
+  Each profile starts with a number like '1)', '2)', etc.
+  Inside a profile, fields have the form 'Key: value'.
+  """
+  profiles = []
+  blocks = re.split(r'\n(?=\d+\))', text.strip())
+  for block in blocks:
+    lines = [line.strip() for line in block.strip().split('\n') if line.strip()]
+    if not lines:
+      continue
+    if re.fullmatch(r'\d+\)', lines[0]):
+      lines = lines[1:]
+    profile = {}
+    for line in lines:
+      match = re.match(r'^([^:]+)(:)\s*(.*)$', line)
+      if match:
+        key = match.group(1).strip()
+        value = match.group(3).strip()
+        profile[key] = value
+    if profile:
+      profiles.append(profile)
+  return profiles
+
+
+def is_valid_gender_male(gender: str) -> bool:
+  """
+  Checks whether the gender is male.
+  Supports both English and Russian text variants.
+  """
+  pattern = r'^(М|м|Мужской|мужской|M|m|Male|male)$'
+  return re.fullmatch(pattern, gender.strip()) is not None
+
+
+def profile_to_text(profile: Dict[str, str], index: int) -> str:
+  """
+  Builds the profile text for saving to a file.
+  Dynamically uses the parsed keys to support both English and Russian.
+  """
+  lines = [f"{index})"]
+  for key, value in profile.items():
+    lines.append(f"{key}: {value}")
+  return '\n'.join(lines)
+
+
+def main() -> None:
+  """
+  Main execution function. Parses arguments, reads the file,
+  filters male profiles, and saves them to a new file.
+  """
+  parser = argparse.ArgumentParser(description='Counting male profiles')
+  parser.add_argument('filename', type=str, help='path to the file with profiles')
+  parser.add_argument('-o', '--output', type=str, default='output.txt',
+            help='file to save male profiles (default: output.txt)')
+  args = parser.parse_args()
+
+  try:
+    with open(args.filename, 'r', encoding='utf-8') as file:
+      text = file.read()
+
+    profiles = parse_profiles(text)
+
+    male_profiles = []
+    for profile in profiles:
+      gender = profile.get('Sex', profile.get('Пол', ''))
+
+      if is_valid_gender_male(gender):
+        male_profiles.append(profile)
+
+    print(f"Number of male profiles: {len(male_profiles)}")
+
+    with open(args.output, 'w', encoding='utf-8') as out_file:
+      for i, profile in enumerate(male_profiles, start=1):
+        out_file.write(profile_to_text(profile, i) + '\n\n')
+
+    print(f"Profiles saved to file: {args.output}")
+
+  except FileNotFoundError:
+    print(f"Error: File '{args.filename}' not found.", file=sys.stderr)
+  except PermissionError:
+    print(f"Error: Permission denied while reading or writing files.", file=sys.stderr)
+  except Exception as exc:
+    print(f"An unexpected error occurred: {exc}", file=sys.stderr)
+
+
+if __name__ == '__main__':
+  main()
